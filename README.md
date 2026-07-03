@@ -156,31 +156,43 @@ This design is useful because reliability probability plots are often easier to 
 
 ### Model comparison by AIC
 
-This supplemental chart provides a quick overview of the AIC comparison. The equal-sigma Lognormal model has the lowest AIC among the compared models for the observed stress levels.
+This supplemental figure summarizes the AIC values of the candidate models.  
+The equal-sigma Lognormal model has the lowest AIC among the compared models for the observed stress levels.
 
 ![Model comparison by AIC](reports/figures/supplemental_model_comparison_aic.png)
+
+---
 
 ### Equal-sigma Lognormal probability plot
 
 This plot checks whether a common-sigma Lognormal model can reasonably describe the lifetime distributions across voltage stress levels.
 
-![Equal-sigma Lognormal probability plot](reports/figures/04_r_probability_plot_equal_sigma.png)
+![Equal-sigma probability plot](reports/figures/04_r_probability_plot_equal_sigma.png)
 
-### 50 kV/mm extrapolation with confidence bands
+---
 
-This plot uses the inverse power law model to extrapolate lifetime behavior to 50 kV/mm. The confidence bands show the uncertainty of model-based extrapolation.
+### Extrapolated failure probability at 50 kV/mm
+
+This probability plot uses the inverse power law model to extrapolate lifetime behavior to 50 kV/mm.  
+The confidence bands highlight the uncertainty of model-based extrapolation.
 
 ![50 kV/mm extrapolation probability plot](reports/figures/06_r_probability_plot_50kv_ci_all_stress_levels.png)
 
+---
+
 ### Inverse power law residual diagnostics
 
-This plot checks the standardized residuals of the inverse power law model. Points highlighted in red indicate observations with large standardized residuals.
+This plot checks the standardized residuals of the inverse power law model.  
+Points highlighted in red indicate observations with large standardized residuals.
 
 ![Inverse power law standardized residuals](reports/figures/08_r_standardized_residuals_inverse_power.png)
 
+---
+
 ### Sensitivity analysis excluding 361.4 kV/mm
 
-This plot repeats the 50 kV/mm extrapolation after excluding the highest voltage level. The comparison highlights how sensitive extrapolation can be to influential high-stress observations.
+This plot shows how the 50 kV/mm extrapolation changes after excluding the highest voltage stress level.  
+The difference highlights the sensitivity of low-stress extrapolation to influential high-stress observations.
 
 ![50 kV/mm extrapolation excluding 361.4 kV/mm](reports/figures/10_r_probability_plot_50kv_ci_excluding_361_4.png)
 
