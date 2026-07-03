@@ -165,7 +165,7 @@ This design is useful because reliability probability plots are often easier to 
 | `06_r_probability_plot_50kv_ci_all_stress_levels.png` | Probability plot with 50 kV/mm extrapolation and confidence bands |
 | `07_r_stress_life_quantiles_all_stress_levels.png` | Stress-life plot with lifetime quantile lines |
 | `08_r_standardized_residuals_inverse_power.png` | Standardized residual diagnostics for the inverse power law model |
-| `09_r_residual_probability_plot_equal_sigma.png.png` | Probability plot of residuals based on the equal-sigma model |
+| `09_r_residual_probability_plot_equal_sigma.png` | Probability plot of residuals based on the equal-sigma model |
 | `10_r_probability_plot_50kv_ci_excluding_361_4.png` | 50 kV/mm extrapolation after excluding 361.4 kV/mm |
 | `11_r_stress_life_quantiles_excluding_361_4.png` | Stress-life quantile plot after excluding 361.4 kV/mm |
 | `supplemental_model_comparison_aic.png` | Supplemental AIC comparison chart for quick GitHub presentation |
