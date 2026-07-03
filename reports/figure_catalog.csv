@@ -1,0 +1,13 @@
+figure,description
+01_r_raw_scatter_voltage_time.png,Original R-style raw scatter plot before log transformation.
+02_r_log_scatter_with_included_excluded_regression.png,Log-log scatter plot with four-side axes and regression lines with/without 361.4 kV/mm.
+03_r_probability_plot_separate_sigma.png,Lognormal probability plot with each voltage group having its own sigma.
+04_r_probability_plot_equal_sigma.png,Lognormal probability plot under the common-sigma assumption.
+05_r_probability_plot_overlay_separate_and_equal_sigma.png,Overlay version following the R script if both line sets are drawn on one canvas.
+06_r_probability_plot_50kv_ci_all_stress_levels.png,Inverse power law probability plot with 50 kV/mm extrapolation and confidence band using all stress levels.
+07_r_stress_life_quantiles_all_stress_levels.png,"Stress-life plot with 10%, 50%, and 90% quantile lines and lognormal density traces using all stress levels."
+08_r_standardized_residuals_inverse_power.png,"R-style standardized residual plot for the inverse power law model, using sigma estimated from the inverse power law fit."
+09_r_residual_probability_plot_equal_sigma.png,Probability plot of equal-sigma exponential standardized residuals.
+10_r_probability_plot_50kv_ci_excluding_361_4.png,Same as Figure 06 after excluding 361.4 kV/mm.
+11_r_stress_life_quantiles_excluding_361_4.png,Same as Figure 07 after excluding 361.4 kV/mm.
+supplemental_model_comparison_aic.png,"Supplemental GitHub-friendly AIC bar chart, added for quick model comparison."
