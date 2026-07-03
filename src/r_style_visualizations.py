@@ -321,7 +321,7 @@ def plot_06_probability_plot_inverse_power_with_50kv_ci(
     marker_time: float = 10000.0,
     time_grid_start: float = 1_000.0,
     time_grid_end: float = 10_000_000.0,
-    x_min: float = 0.1,
+    x_min: float = 0.001,
     x_max: float = 150_000.0,
 ) -> None:
     """R probability plot: inverse power law lines + 50 kV/mm extrapolation + confidence band."""
@@ -333,13 +333,34 @@ def plot_06_probability_plot_inverse_power_with_50kv_ci(
     fig, ax = plt.subplots(figsize=(9.5, 6.5))
     _draw_probability_points(ax, empirical)
 
-    x_line = np.linspace(np.log(x_min), np.log(x_max), 400)
+    # x_line = np.linspace(np.log(x_min), np.log(x_max), 400)
+    # for voltage in sorted(empirical["voltage_kv_mm"].unique()):
+    #     mu = beta0 + beta1 * np.log(float(voltage))
+    #     ax.plot(x_line, (x_line - mu) / sigma, color=R_COLORS.get(float(voltage), "black"), linewidth=0.8)
+
+    # mu_pred = beta0 + beta1 * np.log(prediction_voltage)
+    # ax.plot(x_line, (x_line - mu_pred) / sigma, color="black", linewidth=1.1, label=f"{prediction_voltage:g} kV / mm")
+    y_min = stats.norm.ppf(0.001)
+    y_max = 3
+    z_line = np.linspace(y_min, y_max, 400)
+
     for voltage in sorted(empirical["voltage_kv_mm"].unique()):
         mu = beta0 + beta1 * np.log(float(voltage))
-        ax.plot(x_line, (x_line - mu) / sigma, color=R_COLORS.get(float(voltage), "black"), linewidth=0.8)
+        ax.plot(
+            mu + sigma * z_line,
+            z_line,
+            color=R_COLORS.get(float(voltage), "black"),
+            linewidth=0.8,
+        )
 
     mu_pred = beta0 + beta1 * np.log(prediction_voltage)
-    ax.plot(x_line, (x_line - mu_pred) / sigma, color="black", linewidth=1.1, label=f"{prediction_voltage:g} kV / mm")
+    ax.plot(
+        mu_pred + sigma * z_line,
+        z_line,
+        color="black",
+        linewidth=1.1,
+        label=f"{prediction_voltage:g} kV / mm",
+    )
 
     time_grid = np.arange(time_grid_start, time_grid_end + 10, 10, dtype=float)
     band = failure_probability_confidence_band(inverse_summary, prediction_voltage, time_grid)
