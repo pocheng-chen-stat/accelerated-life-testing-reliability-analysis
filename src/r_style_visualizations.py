@@ -321,6 +321,7 @@ def plot_06_probability_plot_inverse_power_with_50kv_ci(
     marker_time: float = 10000.0,
     time_grid_start: float = 1_000.0,
     time_grid_end: float = 10_000_000.0,
+    x_min: float = 0.1,
     x_max: float = 150_000.0,
 ) -> None:
     """R probability plot: inverse power law lines + 50 kV/mm extrapolation + confidence band."""
