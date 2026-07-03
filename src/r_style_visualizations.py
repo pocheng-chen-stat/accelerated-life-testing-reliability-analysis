@@ -333,7 +333,7 @@ def plot_06_probability_plot_inverse_power_with_50kv_ci(
     fig, ax = plt.subplots(figsize=(9.5, 6.5))
     _draw_probability_points(ax, empirical)
 
-    x_line = np.linspace(np.log(empirical["failure_time"].min()), np.log(x_max), 400)
+    x_line = np.linspace(np.log(x_min), np.log(x_max), 400)
     for voltage in sorted(empirical["voltage_kv_mm"].unique()):
         mu = beta0 + beta1 * np.log(float(voltage))
         ax.plot(x_line, (x_line - mu) / sigma, color=R_COLORS.get(float(voltage), "black"), linewidth=0.8)
@@ -352,7 +352,7 @@ def plot_06_probability_plot_inverse_power_with_50kv_ci(
     ax.axvline(np.log(marker_time), linestyle="--", color="gray", linewidth=0.9)
     ax.axhline(q_marker, linestyle="--", color="gray", linewidth=0.9)
 
-    ax.set_xlim(np.log(empirical["failure_time"].min()), np.log(x_max))
+    ax.set_xlim(np.log(x_min), np.log(x_max))
     ax.set_ylim(stats.norm.ppf(0.001), 3)
     _set_probability_axes(
         ax,

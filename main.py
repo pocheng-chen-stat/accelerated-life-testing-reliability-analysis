@@ -130,6 +130,7 @@ def main() -> None:
         FIGURES_DIR / "06_r_probability_plot_50kv_ci_all_stress_levels.png",
         time_grid_start=1_000,
         time_grid_end=10_000_000,
+        x_min=0.1,
         x_max=150_000,
     )
     plot_07_stress_life_quantiles(
@@ -153,6 +154,7 @@ def main() -> None:
         FIGURES_DIR / "10_r_probability_plot_50kv_ci_excluding_361_4.png",
         time_grid_start=10,
         time_grid_end=2_000_000,
+        x_min=0.1,
         x_max=150_000,
     )
     plot_07_stress_life_quantiles(
