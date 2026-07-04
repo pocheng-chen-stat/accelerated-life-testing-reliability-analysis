@@ -12,6 +12,8 @@ Sensitivity analysis further showed that the highest stress level (361.4 kV/mm) 
 
 The entire workflow was implemented in Python with reproducible reports, automated figures and unit tests.
 
+---
+
 # Accelerated Life Testing Reliability Analysis
 
 A reproducible Python project for **Lognormal accelerated life testing (ALT)**, model comparison, and reliability extrapolation for electrical insulation lifetime data.
