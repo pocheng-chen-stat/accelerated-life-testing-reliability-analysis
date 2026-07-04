@@ -1,3 +1,17 @@
+# Project Summary
+
+This project investigates insulation lifetime using accelerated life testing.
+
+Three Lognormal lifetime models were compared using MLE and AIC.
+
+Although the equal-sigma model achieved the lowest AIC, it cannot extrapolate to normal operating stress.
+
+Therefore an inverse power law model was constructed to estimate reliability at 50 kV/mm.
+
+Sensitivity analysis further showed that the highest stress level (361.4 kV/mm) substantially influenced the extrapolated B10 and B50 life estimates.
+
+The entire workflow was implemented in Python with reproducible reports, automated figures and unit tests.
+
 # Accelerated Life Testing Reliability Analysis
 
 A reproducible Python project for **Lognormal accelerated life testing (ALT)**, model comparison, and reliability extrapolation for electrical insulation lifetime data.
