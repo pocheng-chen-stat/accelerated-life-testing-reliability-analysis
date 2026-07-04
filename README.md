@@ -2,13 +2,15 @@
 
 A reproducible Python project for **Lognormal accelerated life testing (ALT)**, model comparison, and reliability extrapolation for electrical insulation lifetime data.
 
-The main goal is to use accelerated voltage-stress failure data to estimate reliability behavior under a lower normal-use voltage level of **50 kV/mm**, including:
+This project starts from a full-data accelerated life testing analysis, then evaluates how the highest voltage stress level affects the inverse power law extrapolation to a lower normal-use voltage level of **50 kV/mm**.
+
+The main engineering goal is to estimate reliability quantities at 50 kV/mm:
 
 - `F(10000)`: predicted failure probability by time 10000
-- `t_0.1` / B10 life: time by which 10% of units fail
+- `t_0.1` / B10 life: time by which 10% of units are expected to fail
 - `t_0.5` / B50 life: median lifetime
 
-This project refactors an original R-based reliability analysis into a structured Python repository with modular source code, automated tests, generated model reports, and R-style reliability visualizations.
+The original analysis was developed in R and refactored into a structured Python project with modular source code, automated tests, generated model reports, and R-style reliability visualizations.
 
 ---
 
@@ -16,8 +18,8 @@ This project refactors an original R-based reliability analysis into a structure
 
 - Fits Lognormal lifetime models under multiple voltage stress levels.
 - Compares **separate-sigma**, **equal-sigma**, and **inverse power law** models using maximum likelihood estimation and AIC.
-- Uses the inverse power law model to extrapolate reliability behavior to a normal-use voltage level of **50 kV/mm**.
-- Evaluates how the highest stress level, **361.4 kV/mm**, affects the inverse power law slope and the final extrapolated reliability estimates.
+- Uses the inverse power law model to extrapolate reliability behavior to **50 kV/mm**.
+- Investigates how the highest stress level, **361.4 kV/mm**, affects the inverse power law slope and the final normal-use prediction.
 - Reports engineering reliability metrics: **F(10000)**, **B10 life**, and **B50 / median life**.
 - Reproduces R-style reliability plots with transformed axes for engineering interpretation.
 - Provides a reproducible Python workflow with `src/`, `reports/`, and `tests/`.
@@ -57,7 +59,7 @@ This project is organized around four reliability questions:
    Can the voltage groups share a common log-scale standard deviation?
 
 3. **Stress-life relationship**  
-   Does the inverse power law provide a reasonable stress-life relationship for extrapolating to 50 kV/mm?
+   Does the inverse power law model provide a reasonable relationship between voltage stress and lifetime?
 
 4. **Normal-use prediction**  
    At 50 kV/mm, what are the estimated failure probability by time 10000, B10 life, and B50 life?
@@ -82,7 +84,7 @@ This distinction is important:
 
 - The **equal-sigma model** evaluates whether the observed stress groups can reasonably share a common dispersion parameter.
 - The **inverse power law model** imposes a stress-life relationship so that the model can extrapolate to an unobserved voltage level such as 50 kV/mm.
-- The **361.4 kV/mm group** is not removed at the beginning. It is first included in the full-data analysis, then examined because it has strong influence on the inverse power law slope and the 50 kV/mm extrapolation.
+- The **361.4 kV/mm group is not removed at the beginning**. The full-data model is fitted first. Then the highest stress level is examined because it strongly affects the inverse power law slope and the 50 kV/mm extrapolation.
 
 ---
 
@@ -139,11 +141,11 @@ mu(V) = beta0 + beta1 * log(V)
 
 This model enables reliability prediction at 50 kV/mm.
 
-The inverse power law assumption means that the Lognormal location parameter should follow an approximately linear relationship with `log(V)`. Therefore, the stress-life plots and probability plots are important diagnostics, not just presentation figures.
+The inverse power law assumption means that the Lognormal location parameter should follow an approximately linear relationship with `log(V)`. Therefore, the stress-life plots and probability plots are used not only for presentation, but also for checking whether the extrapolation model is reasonable.
 
 ---
 
-## Model Comparison Using All Stress Levels
+## Step 1: Observed-Data Model Comparison
 
 The Python implementation first reproduces the full-data numerical results of the original R analysis.
 
@@ -161,45 +163,52 @@ However, the equal-sigma model alone cannot extrapolate to 50 kV/mm because it e
 
 ---
 
-## Why Check the 361.4 kV/mm Stress Level?
+## Step 2: Full-Data Extrapolation to 50 kV/mm
 
-The inverse power law model depends heavily on the estimated relationship between voltage stress and log lifetime. The highest stress level, **361.4 kV/mm**, is far from the lower stress levels and has very short failure times.
+Using all stress levels, the inverse power law model produces the following normal-use reliability estimates at 50 kV/mm:
 
-When this group is included, it strongly affects the estimated inverse power law slope. As a result, the extrapolated reliability at 50 kV/mm changes substantially.
+| Quantity | Estimate | Interpretation |
+|---|---:|---|
+| `F(10000)` | 0.0028 | Estimated failure probability by time 10000 |
+| `t_0.1` / B10 life | 58541.8 | Estimated time by which 10% of units fail |
+| `t_0.5` / B50 life | 267657.6 | Estimated median lifetime |
 
-This does not mean the 361.4 kV/mm data are automatically invalid. Instead, it shows that the inverse power law extrapolation is sensitive to the highest stress level. For that reason, this project reports both:
+The 50 kV/mm probability plot marks the reference time `10000` because the analysis evaluates the predicted failure probability at that operating time.
 
-1. the full-data extrapolation using all stress levels; and  
-2. the reduced-stress extrapolation excluding 361.4 kV/mm.
-
-The reduced-stress result is emphasized for engineering interpretation because it is less dominated by the extreme highest stress condition.
+![50 kV/mm extrapolation probability plot](reports/figures/06_r_probability_plot_50kv_ci_all_stress_levels.png)
 
 ---
 
-## Normal-Use Reliability Prediction at 50 kV/mm
+## Step 3: Sensitivity to the Highest Stress Level
 
-The main engineering quantities are estimated at 50 kV/mm using the inverse power law model.
+The highest stress level, **361.4 kV/mm**, is far from the lower stress levels and has very short failure times. Because the inverse power law model estimates a straight-line relationship between `log(V)` and log lifetime, this highest stress group can strongly affect the fitted slope.
+
+This does not mean the 361.4 kV/mm data are automatically invalid. Instead, it shows that the inverse power law extrapolation is sensitive to the highest stress level.
+
+For this reason, the analysis is repeated after excluding 361.4 kV/mm.
 
 | Case | `F(10000)` | `t_0.1` / B10 life | `t_0.5` / B50 life |
 |---|---:|---:|---:|
 | All stress levels | 0.0028 | 58541.8 | 267657.6 |
 | Excluding 361.4 kV/mm | 0.0762 | 11699.5 | 44921.4 |
 
-In reliability terminology:
+The difference is substantial. Including 361.4 kV/mm produces a much more optimistic 50 kV/mm prediction, while excluding it gives a higher estimated failure probability by time 10000 and shorter B10 / B50 lifetime estimates.
 
-- **F(10000)** answers: *What fraction of units are expected to fail by time 10000?*
-- **B10 life** answers: *When have 10% of units failed?*
-- **B50 life** is the median lifetime.
-
-The large difference between the two rows is the central modeling issue in this project. It shows that the final normal-use reliability prediction is strongly affected by whether the highest stress level is used to estimate the inverse power law relationship.
-
-### Full-data extrapolation
-
-![50 kV/mm extrapolation probability plot](reports/figures/06_r_probability_plot_50kv_ci_all_stress_levels.png)
-
-### Extrapolation excluding 361.4 kV/mm
+This sensitivity is the central modeling issue in the project.
 
 ![50 kV/mm extrapolation excluding 361.4 kV/mm](reports/figures/10_r_probability_plot_50kv_ci_excluding_361_4.png)
+
+---
+
+## Reliability Metrics: F(10000), B10, and B50
+
+The final output is expressed in reliability quantities rather than only model parameters.
+
+- **F(10000)** answers: *What fraction of units are expected to fail by time 10000?*
+- **B10 life** (`t_0.1`) answers: *At what time have 10% of units failed?*
+- **B50 life** (`t_0.5`) is the median lifetime, or the time by which 50% of units have failed.
+
+These metrics translate the fitted ALT model into quantities that are easier to interpret for engineering decision-making.
 
 ---
 
@@ -265,7 +274,7 @@ Running `python main.py` regenerates the model summaries, predictions, residual 
 | `03_r_probability_plot_separate_sigma.png` | Lognormal probability plot with separate-sigma fits |
 | `04_r_probability_plot_equal_sigma.png` | Lognormal probability plot with equal-sigma fits |
 | `05_r_probability_plot_overlay_separate_and_equal_sigma.png` | Comparison of separate-sigma and equal-sigma probability plot fits |
-| `06_r_probability_plot_50kv_ci_all_stress_levels.png` | 50 kV/mm extrapolation with confidence bands |
+| `06_r_probability_plot_50kv_ci_all_stress_levels.png` | 50 kV/mm extrapolation with confidence bands using all stress levels |
 | `07_r_stress_life_quantiles_all_stress_levels.png` | Stress-life plot with lifetime quantile lines |
 | `08_r_standardized_residuals_inverse_power.png` | Standardized residual diagnostics for the inverse power law model |
 | `09_r_residual_probability_plot_equal_sigma.png` | Probability plot of residuals based on the equal-sigma model |
@@ -369,7 +378,6 @@ Potential extensions include:
 - Add Arrhenius or Eyring acceleration models.
 - Add bootstrap confidence intervals for extrapolated reliability estimates.
 - Add formal influence diagnostics for high-stress observations.
-- Add notebooks documenting the analysis workflow.
 - Build an interactive dashboard for reliability prediction.
 
 ---
