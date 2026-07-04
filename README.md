@@ -8,31 +8,40 @@ A reproducible Python project for **Lognormal accelerated life testing (ALT)**, 
 
 This project evaluates lifetime behavior under accelerated voltage stress, compares competing Lognormal reliability models, and extrapolates reliability metrics to a lower normal-use voltage level of **50 kV/mm**.
 
-![50 kV/mm extrapolation probability plot](reports/figures/06_r_probability_plot_50kv_ci_all_stress_levels.png)
+The main engineering conclusion is based on the inverse power law extrapolation **excluding the highest stress level, 361.4 kV/mm**, because that group has strong influence on the low-stress prediction.
+
+![50 kV/mm extrapolation excluding 361.4 kV/mm](reports/figures/10_r_probability_plot_50kv_ci_excluding_361_4.png)
 
 ---
 
 ## Key Results
 
-### Normal-use reliability prediction at 50 kV/mm
+### Preferred normal-use reliability prediction at 50 kV/mm
+
+The preferred extrapolation excludes the highest stress level, **361.4 kV/mm**, to reduce the influence of an extreme stress condition on normal-use reliability prediction.
 
 | Quantity | Estimate | Engineering interpretation |
 |---|---:|---|
-| `F(10000)` | 0.0028 | Estimated failure probability by time 10000 |
-| `t_0.1` / B10 life | 58541.8 | Estimated time by which 10% of units fail |
-| `t_0.5` / B50 life | 267657.6 | Estimated median lifetime |
+| `F(10000)` | 0.0762 | Estimated failure probability by time 10000 |
+| `t_0.1` / B10 life | 11699.5 | Estimated time by which 10% of units fail |
+| `t_0.5` / B50 life | 44921.4 | Estimated median lifetime |
 
-### Model comparison
+In reliability terminology:
 
-| Model | Number of Parameters | -2 Log-Likelihood | AIC | Role |
-|---|---:|---:|---:|---|
-| Separate sigma | 10 | 564.9022 | 584.9022 | Flexible observed-data fit |
-| Equal sigma | 6 | 567.2105 | 579.2105 | Best AIC among observed-stress models |
-| Inverse power law | 3 | 579.7550 | 585.7550 | Stress-life extrapolation model |
+- **F(10000)** answers: *What fraction of units are expected to fail by time 10000?*
+- **B10 life** answers: *When have 10% of units failed?*
+- **B50 life** is the median lifetime.
 
-The **equal-sigma Lognormal model** provides the most parsimonious fit for the observed accelerated stress levels, while the **inverse power law model** is used to extrapolate reliability behavior to 50 kV/mm.
+### Sensitivity to including 361.4 kV/mm
 
-![Model comparison by AIC](reports/figures/supplemental_model_comparison_aic.png)
+Including the highest stress level produces a much more optimistic extrapolation:
+
+| Extrapolation case | `F(10000)` | `t_0.1` / B10 life | `t_0.5` / B50 life |
+|---|---:|---:|---:|
+| Excluding 361.4 kV/mm | 0.0762 | 11699.5 | 44921.4 |
+| Including all stress levels | 0.0028 | 58541.8 | 267657.6 |
+
+This difference is substantial. It shows that low-stress reliability prediction is highly sensitive to the highest stress group and should be interpreted as model-based extrapolation rather than direct empirical evidence.
 
 ---
 
@@ -91,6 +100,7 @@ This distinction is important:
 
 - The **equal-sigma model** evaluates whether the observed voltage groups can reasonably share a common dispersion parameter.
 - The **inverse power law model** imposes a stress-life relationship so that the model can extrapolate to an unobserved voltage level.
+- The highest stress level is evaluated through sensitivity analysis because it materially changes the 50 kV/mm prediction.
 
 ---
 
@@ -149,34 +159,21 @@ This model enables reliability prediction at 50 kV/mm.
 
 ---
 
-## Normal-Use Reliability Prediction
+## Observed-Data Model Comparison
 
-The inverse power law model translates accelerated life testing results into reliability quantities at 50 kV/mm.
+The Python implementation reproduces the main numerical results of the original R analysis.
 
-In reliability terminology:
+| Model | Number of Parameters | -2 Log-Likelihood | AIC | Role |
+|---|---:|---:|---:|---|
+| Separate sigma | 10 | 564.9022 | 584.9022 | Flexible observed-data fit |
+| Equal sigma | 6 | 567.2105 | 579.2105 | Best AIC among observed-stress models |
+| Inverse power law | 3 | 579.7550 | 585.7550 | Stress-life extrapolation model |
 
-- **F(10000)** answers: *What fraction of units are expected to fail by time 10000?*
-- **B10 life** answers: *When have 10% of units failed?*
-- **B50 life** is the median lifetime.
+The **equal-sigma Lognormal model** provides the most parsimonious fit for the observed accelerated stress levels.
 
-The probability plot marks the reference time `10000` because the original engineering analysis evaluates the predicted failure probability at that operating time.
+However, the equal-sigma model alone cannot extrapolate to 50 kV/mm because it estimates separate mean parameters only at the observed voltage levels. Therefore, the inverse power law model is used for extrapolation, with sensitivity analysis used to evaluate the influence of the highest stress level.
 
-![50 kV/mm extrapolation probability plot](reports/figures/06_r_probability_plot_50kv_ci_all_stress_levels.png)
-
----
-
-## Sensitivity to the Highest Stress Level
-
-The highest stress level, **361.4 kV/mm**, strongly influences the inverse power law extrapolation. The project therefore includes a sensitivity analysis excluding this group.
-
-| Case | `F(10000)` | `t_0.1` / B10 life | `t_0.5` / B50 life |
-|---|---:|---:|---:|
-| All stress levels | 0.0028 | 58541.8 | 267657.6 |
-| Excluding 361.4 kV/mm | 0.0762 | 11699.5 | 44921.4 |
-
-The difference is substantial, showing that normal-use reliability estimates are sensitive to high-stress observations and acceleration-model assumptions.
-
-![50 kV/mm extrapolation excluding 361.4 kV/mm](reports/figures/10_r_probability_plot_50kv_ci_excluding_361_4.png)
+![Model comparison by AIC](reports/figures/supplemental_model_comparison_aic.png)
 
 ---
 
@@ -189,6 +186,18 @@ For example:
 - actual plotting coordinates may use `log(time)`, `log(kV/mm)`, or standard normal quantiles;
 - bottom and left axes display original-scale engineering quantities;
 - top and right axes display transformed-scale values.
+
+### Preferred 50 kV/mm extrapolation excluding 361.4 kV/mm
+
+The preferred presentation focuses on the extrapolation excluding 361.4 kV/mm, because the highest stress level strongly affects the inverse power law fit.
+
+![50 kV/mm extrapolation excluding 361.4 kV/mm](reports/figures/10_r_probability_plot_50kv_ci_excluding_361_4.png)
+
+### All-stress-level extrapolation
+
+The all-stress-level result is retained as a sensitivity comparison.
+
+![50 kV/mm extrapolation probability plot](reports/figures/06_r_probability_plot_50kv_ci_all_stress_levels.png)
 
 ### Equal-sigma probability plot
 
@@ -242,11 +251,11 @@ Running `python main.py` regenerates all model summaries, predictions, residual 
 | `03_r_probability_plot_separate_sigma.png` | Lognormal probability plot with separate-sigma fits |
 | `04_r_probability_plot_equal_sigma.png` | Lognormal probability plot with equal-sigma fits |
 | `05_r_probability_plot_overlay_separate_and_equal_sigma.png` | Comparison of separate-sigma and equal-sigma probability plot fits |
-| `06_r_probability_plot_50kv_ci_all_stress_levels.png` | 50 kV/mm extrapolation with confidence bands |
+| `06_r_probability_plot_50kv_ci_all_stress_levels.png` | 50 kV/mm extrapolation with confidence bands using all stress levels |
 | `07_r_stress_life_quantiles_all_stress_levels.png` | Stress-life plot with lifetime quantile lines |
 | `08_r_standardized_residuals_inverse_power.png` | Standardized residual diagnostics for the inverse power law model |
 | `09_r_residual_probability_plot_equal_sigma.png` | Probability plot of residuals based on the equal-sigma model |
-| `10_r_probability_plot_50kv_ci_excluding_361_4.png` | 50 kV/mm extrapolation after excluding 361.4 kV/mm |
+| `10_r_probability_plot_50kv_ci_excluding_361_4.png` | Preferred 50 kV/mm extrapolation after excluding 361.4 kV/mm |
 | `11_r_stress_life_quantiles_excluding_361_4.png` | Stress-life quantile plot after excluding 361.4 kV/mm |
 | `supplemental_model_comparison_aic.png` | Supplemental AIC comparison chart for presentation |
 
@@ -321,8 +330,9 @@ The analysis supports the following interpretation:
 1. The equal-sigma Lognormal model provides a parsimonious fit for the observed accelerated stress data.
 2. The common-sigma assumption reduces model complexity while retaining reasonable fit across voltage groups.
 3. The inverse power law model is required for extrapolation because the equal-sigma model does not define lifetime behavior at unobserved voltage levels.
-4. The predicted `F(10000)`, B10 life, and B50 life translate the statistical model into engineering reliability metrics.
-5. Excluding the highest stress level changes extrapolated predictions substantially, showing that normal-use reliability estimates are sensitive to high-stress observations and acceleration-model assumptions.
+4. The preferred normal-use extrapolation excludes 361.4 kV/mm because the highest stress level strongly influences the 50 kV/mm prediction.
+5. The predicted `F(10000)`, B10 life, and B50 life translate the statistical model into engineering reliability metrics.
+6. The large difference between all-stress and reduced-stress extrapolations highlights the uncertainty and sensitivity of model-based reliability prediction.
 
 ---
 
@@ -330,6 +340,7 @@ The analysis supports the following interpretation:
 
 - The data are treated as complete failure observations with no right censoring.
 - The inverse power law model is used for extrapolation even though it does not have the lowest AIC for observed-data fit.
+- Excluding 361.4 kV/mm is a modeling judgment motivated by sensitivity of the extrapolation, not direct proof that the data point is invalid.
 - Extrapolation to 50 kV/mm is model-based and should not be interpreted as direct empirical evidence.
 - Confidence bands are based on asymptotic approximations.
 - Additional physical knowledge would be needed before using the extrapolated results for final engineering decisions.
