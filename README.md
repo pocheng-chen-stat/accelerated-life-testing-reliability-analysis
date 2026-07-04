@@ -196,7 +196,17 @@ The difference is substantial. Including 361.4 kV/mm produces a much more optimi
 
 This sensitivity is the central modeling issue in the project.
 
+### Extrapolation excluding 361.4 kV/mm
+
 ![50 kV/mm extrapolation excluding 361.4 kV/mm](reports/figures/10_r_probability_plot_50kv_ci_excluding_361_4.png)
+
+### Stress-life quantile plot excluding 361.4 kV/mm
+
+After excluding the highest stress level, the stress-life quantile plot focuses on the lower stress range used for the reduced-stress extrapolation. This figure is more consistent with the final sensitivity-based engineering interpretation than the all-stress-level stress-life plot.
+
+The vertical normal density curves are drawn on the log-time scale and horizontally scaled for visualization.
+
+![Stress-life quantile plot excluding 361.4 kV/mm](reports/figures/11_r_stress_life_quantiles_excluding_361_4.png)
 
 ---
 
@@ -229,14 +239,6 @@ This design is useful because reliability probability plots are easier to assess
 This plot checks whether a common-sigma Lognormal model can reasonably describe the lifetime distributions across voltage stress levels.
 
 ![Equal-sigma probability plot](reports/figures/04_r_probability_plot_equal_sigma.png)
-
-### Stress-Life Quantile Plot
-
-The stress-life plot shows estimated lifetime quantile curves across voltage levels.
-
-The vertical normal density curves are drawn on the log-time scale and horizontally scaled for visualization.
-
-![Stress-life quantile plot](reports/figures/07_r_stress_life_quantiles_all_stress_levels.png)
 
 ### Inverse Power Law Residual Diagnostics
 
@@ -275,7 +277,7 @@ Running `python main.py` regenerates the model summaries, predictions, residual 
 | `04_r_probability_plot_equal_sigma.png` | Lognormal probability plot with equal-sigma fits |
 | `05_r_probability_plot_overlay_separate_and_equal_sigma.png` | Comparison of separate-sigma and equal-sigma probability plot fits |
 | `06_r_probability_plot_50kv_ci_all_stress_levels.png` | 50 kV/mm extrapolation with confidence bands using all stress levels |
-| `07_r_stress_life_quantiles_all_stress_levels.png` | Stress-life plot with lifetime quantile lines |
+| `07_r_stress_life_quantiles_all_stress_levels.png` | Full-data stress-life plot with lifetime quantile lines |
 | `08_r_standardized_residuals_inverse_power.png` | Standardized residual diagnostics for the inverse power law model |
 | `09_r_residual_probability_plot_equal_sigma.png` | Probability plot of residuals based on the equal-sigma model |
 | `10_r_probability_plot_50kv_ci_excluding_361_4.png` | 50 kV/mm extrapolation after excluding 361.4 kV/mm |
