@@ -8,7 +8,7 @@ Although the equal-sigma model achieved the lowest AIC, it cannot extrapolate to
 
 Therefore an inverse power law model was constructed to estimate reliability at 50 kV/mm.
 
-Sensitivity analysis further showed that the highest stress level (361.4 kV/mm) substantially influenced the extrapolated B10 and B50 life estimates.
+Sensitivity analysis further showed that the highest stress level (361.4 kV/mm) substantially influenced the extrapolated B10 and B50 life estimates, both measured in minutes.
 
 The entire workflow was implemented in Python with reproducible reports, automated figures and unit tests.
 
@@ -22,9 +22,9 @@ This project starts from a full-data accelerated life testing analysis, then eva
 
 The main engineering goal is to estimate reliability quantities at 50 kV/mm:
 
-- `F(10000)`: predicted failure probability by time 10000
-- `t_0.1` / B10 life: time by which 10% of units are expected to fail
-- `t_0.5` / B50 life: median lifetime
+- `F(10000 minutes)`: predicted failure probability by 10,000 minutes
+- `t_0.1` / B10 life: time in minutes by which 10% of units are expected to fail
+- `t_0.5` / B50 life: median lifetime in minutes
 
 The original analysis was developed in R and refactored into a structured Python project with modular source code, automated tests, generated model reports, and R-style reliability visualizations.
 
@@ -78,7 +78,7 @@ This project is organized around four reliability questions:
    Does the inverse power law model provide a reasonable relationship between voltage stress and lifetime?
 
 4. **Normal-use prediction**  
-   At 50 kV/mm, what are the estimated failure probability by time 10000, B10 life, and B50 life?
+   At 50 kV/mm, what are the estimated failure probability by 10,000 minutes, B10 life in minutes, and B50 life in minutes?
 
 ---
 
@@ -112,7 +112,7 @@ The dataset contains complete failure-time observations from an accelerated life
 |---|---|
 | `unit_id` | Unit identifier |
 | `voltage_kv_mm` | Voltage stress level in kV/mm |
-| `failure_time` | Observed failure time |
+| `failure_time` | Observed failure time in minutes |
 | `event` | Failure indicator; all observations are treated as observed failures |
 
 This project assumes no right censoring, consistent with the original analysis.
@@ -185,11 +185,11 @@ Using all stress levels, the inverse power law model produces the following norm
 
 | Quantity | Estimate | Interpretation |
 |---|---:|---|
-| `F(10000)` | 0.0028 | Estimated failure probability by time 10000 |
-| `t_0.1` / B10 life | 58541.8 | Estimated time by which 10% of units fail |
-| `t_0.5` / B50 life | 267657.6 | Estimated median lifetime |
+| `F(10000)` | 0.0028 | Estimated failure probability by 10,000 minutes |
+| `t_0.1` / B10 life | 58,541.8 minutes | Estimated time in minutes by which 10% of units fail |
+| `t_0.5` / B50 life | 267,657.6 minutes | Estimated median lifetime in minutes |
 
-The 50 kV/mm probability plot marks the reference time `10000` because the analysis evaluates the predicted failure probability at that operating time.
+The 50 kV/mm probability plot marks the reference time `10000` because the analysis evaluates the predicted failure probability at that operating time, measured in minutes.
 
 ![50 kV/mm extrapolation probability plot](reports/figures/06_r_probability_plot_50kv_ci_all_stress_levels.png)
 
@@ -203,10 +203,10 @@ This does not mean the 361.4 kV/mm data are automatically invalid. Instead, it s
 
 For this reason, the analysis is repeated after excluding 361.4 kV/mm.
 
-| Case | `F(10000)` | `t_0.1` / B10 life | `t_0.5` / B50 life |
+| Case | `F(10000 minutes)` | `t_0.1` / B10 life | `t_0.5` / B50 life |
 |---|---:|---:|---:|
-| All stress levels | 0.0028 | 58541.8 | 267657.6 |
-| Excluding 361.4 kV/mm | 0.0762 | 11699.5 | 44921.4 |
+| All stress levels | 0.0028 | 58,541.8 minutes | 267,657.6 minutes |
+| Excluding 361.4 kV/mm | 0.0762 | 11,699.5 minutes | 44,921.4 minutes |
 
 The difference is substantial. Including 361.4 kV/mm produces a much more optimistic 50 kV/mm prediction, while excluding it gives a higher estimated failure probability by time 10000 and shorter B10 / B50 lifetime estimates.
 
@@ -228,11 +228,11 @@ The vertical normal density curves are drawn on the log-time scale and horizonta
 
 ## Reliability Metrics: F(10000), B10, and B50
 
-The final output is expressed in reliability quantities rather than only model parameters.
+The final output is expressed in reliability quantities rather than only model parameters. All lifetime quantities in this project are measured in minutes.
 
-- **F(10000)** answers: *What fraction of units are expected to fail by time 10000?*
-- **B10 life** (`t_0.1`) answers: *At what time have 10% of units failed?*
-- **B50 life** (`t_0.5`) is the median lifetime, or the time by which 50% of units have failed.
+- **F(10000 minutes)** answers: *What fraction of units are expected to fail by 10,000 minutes?*
+- **B10 life** (`t_0.1`) answers: *At what time, in minutes, have 10% of units failed?*
+- **B50 life** (`t_0.5`) is the median lifetime, or the time in minutes by which 50% of units have failed.
 
 These metrics translate the fitted ALT model into quantities that are easier to interpret for engineering decision-making.
 
@@ -371,7 +371,7 @@ The analysis supports the following interpretation:
 2. The common-sigma assumption is useful because it reduces model complexity while retaining reasonable fit across voltage groups.
 3. The inverse power law model is required for extrapolation because the equal-sigma model does not define lifetime behavior at unobserved voltage levels.
 4. The 361.4 kV/mm group strongly affects the inverse power law slope, making the 50 kV/mm extrapolation sensitive to high-stress observations.
-5. The predicted `F(10000)`, B10 life, and B50 life translate the statistical model into engineering reliability metrics.
+5. The predicted `F(10000 minutes)`, B10 life, and B50 life translate the statistical model into engineering reliability metrics.
 6. The reduced-stress extrapolation excluding 361.4 kV/mm is emphasized as the main engineering interpretation, while the all-stress result is retained as a sensitivity comparison.
 
 ---
