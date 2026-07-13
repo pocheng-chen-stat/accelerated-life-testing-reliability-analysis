@@ -103,6 +103,15 @@ This distinction is important:
 - The **361.4 kV/mm group is not removed at the beginning**. The full-data model is fitted first. Then the highest stress level is examined because it strongly affects the inverse power law slope and the 50 kV/mm extrapolation.
 
 ---
+## Data Source
+
+The accelerated life test data used in this project come from:
+
+> Meeker, W. Q., & Escobar, L. A.  
+> *Statistical Methods for Reliability Data*.  
+> John Wiley & Sons, Inc.
+
+The dataset corresponds to the voltage-acceleration example involving a Mylar–polyurethane insulating structure. Failure time is defined as time to dielectric breakdown under different voltage stress levels.
 
 ## Dataset
 
