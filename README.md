@@ -192,11 +192,11 @@ However, the equal-sigma model alone cannot extrapolate to 50 kV/mm because it e
 
 Using all stress levels, the inverse power law model produces the following normal-use reliability estimates at 50 kV/mm:
 
-| Quantity | Estimate | Interpretation |
-|---|---:|---|
-| `F(10000)` | 0.0028 | Estimated failure probability by 10,000 minutes |
-| `t_0.1` / B10 life | 58,541.8 minutes | Estimated time in minutes by which 10% of units fail |
-| `t_0.5` / B50 life | 267,657.6 minutes | Estimated median lifetime in minutes |
+| Quantity | Estimate | 95% Confidence Interval | Interpretation |
+|---|---:|---:|---|
+| `F(10000)` | 0.0028 | [0.0001, 0.0628] | Estimated failure probability by 10,000 minutes |
+| `t_0.1` / B10 life | 58,541.8 minutes | [20,008.4, 171,285.4] minutes | Estimated time in minutes by which 10% of units fail |
+| `t_0.5` / B50 life | 267,657.6 minutes | [95,631.5, 749,132.0] minutes | Estimated median lifetime in minutes |
 
 The 50 kV/mm probability plot marks the reference time `10000` because the analysis evaluates the predicted failure probability at that operating time, measured in minutes.
 
@@ -212,10 +212,10 @@ This does not mean the 361.4 kV/mm data are automatically invalid. Instead, it s
 
 For this reason, the analysis is repeated after excluding 361.4 kV/mm.
 
-| Case | `F(10000 minutes)` | `t_0.1` / B10 life | `t_0.5` / B50 life |
-|---|---:|---:|---:|
-| All stress levels | 0.0028 | 58,541.8 minutes | 267,657.6 minutes |
-| Excluding 361.4 kV/mm | 0.0762 | 11,699.5 minutes | 44,921.4 minutes |
+| Case | `F(10000 minutes)` | 95% CI | `t_0.1` / B10 life | 95% CI | `t_0.5` / B50 life | 95% CI |
+|---|---:|---:|---:|---:|---:|---:|
+| All stress levels | 0.0028 | [0.0001, 0.0628] | 58,541.8 minutes | [20,008.4, 171,285.4] minutes | 267,657.6 minutes | [95,631.5, 749,132.0] minutes |
+| Excluding 361.4 kV/mm | 0.0762 | [0.0059, 0.5350] | 11,699.5 minutes | [3,030.8, 45,162.3] minutes | 44,921.4 minutes | [12,048.1, 167,489.1] minutes |
 
 The difference is substantial. Including 361.4 kV/mm produces a much more optimistic 50 kV/mm prediction, while excluding it gives a higher estimated failure probability by time 10000 and shorter B10 / B50 lifetime estimates.
 
