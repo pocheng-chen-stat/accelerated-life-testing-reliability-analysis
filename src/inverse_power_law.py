@@ -7,25 +7,32 @@ from src.utils import normal_ci, sigma_bias_correction
 
 def _legacy_r_covariance(voltage: np.ndarray, y: np.ndarray, beta0: float, beta1: float, sigma: float) -> np.ndarray:
     """
-    Reproduce the covariance-matrix calculation used in the original R project.
+    Covariance matrix based on the observed information used by the original
+    R project, corrected to match the fitted predictor x = log(voltage).
 
-    The original report/script used this matrix when drawing confidence bands for
-    the 50 kV/mm extrapolated probability plot. We keep it here for faithful
-    reproduction of the original figures. A more standard covariance estimate is
-    also available through `_standard_covariance`.
+    The earlier implementation accidentally used raw voltage in two information
+    matrix terms for beta1.  Because the model is
+    log(T) = beta0 + beta1 * log(V) + error, those terms must use log(V).
+    A standard regression-based covariance estimate is also available through
+    `_standard_covariance`.
     """
     n = len(y)
-    residual = y - beta0 - beta1 * np.log(voltage)
+    # The fitted regression uses x = log(voltage), so every derivative with
+    # respect to beta1 must also use log(voltage).  The previous implementation
+    # mixed the raw voltage into the beta1-beta1 and beta1-sigma information
+    # terms, which severely understated Var(beta1).
+    x = np.log(voltage)
+    residual = y - beta0 - beta1 * x
 
     values = [
         n / sigma**2,
-        np.sum(np.log(voltage)) / sigma**2,
+        np.sum(x) / sigma**2,
         2 * np.sum(residual) / sigma**3,
-        np.sum(np.log(voltage)) / sigma**2,
-        np.sum(voltage**2) / sigma**2,
-        2 * np.sum(residual * voltage) / sigma**3,
+        np.sum(x) / sigma**2,
+        np.sum(x**2) / sigma**2,
+        2 * np.sum(residual * x) / sigma**3,
         2 * np.sum(residual) / sigma**3,
-        2 * np.sum(residual * voltage) / sigma**3,
+        2 * np.sum(residual * x) / sigma**3,
         2 * n / sigma**2,
     ]
 
