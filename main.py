@@ -22,6 +22,7 @@ from src.r_style_visualizations import (
     plot_07_stress_life_quantiles,
     plot_08_standardized_residuals_inverse_power,
     plot_09_residual_probability_plot_equal_sigma,
+    plot_12_stress_life_quantile_comparison,
     plot_supplemental_aic_bar,
 )
 
@@ -183,6 +184,12 @@ def main() -> None:
         inverse_summary_without_361,
         FIGURES_DIR / "11_r_stress_life_quantiles_excluding_361_4.png",
     )
+    plot_12_stress_life_quantile_comparison(
+        df,
+        inverse_summary,
+        inverse_summary_without_361,
+        FIGURES_DIR / "12_stress_life_quantile_comparison_including_vs_excluding_361_4.png",
+    )
 
     # Supplemental figure: not in the original R script, but useful for GitHub/README.
     plot_supplemental_aic_bar(model_summary, FIGURES_DIR / "supplemental_model_comparison_aic.png")
@@ -204,6 +211,7 @@ def main() -> None:
             ["09_r_residual_probability_plot_equal_sigma.png", "Probability plot of equal-sigma exponential standardized residuals."],
             ["10_r_probability_plot_50kv_ci_excluding_361_4.png", "Same as Figure 06 after excluding 361.4 kV/mm."],
             ["11_r_stress_life_quantiles_excluding_361_4.png", "Same as Figure 07 after excluding 361.4 kV/mm."],
+            ["12_stress_life_quantile_comparison_including_vs_excluding_361_4.png", "Presentation-focused comparison of 10%, 50%, and 90% lifetime quantile curves with and without the 361.4 kV/mm stress group."],
             ["supplemental_model_comparison_aic.png", "Supplemental GitHub-friendly AIC bar chart, added for quick model comparison."],
         ],
         columns=["figure", "description"],

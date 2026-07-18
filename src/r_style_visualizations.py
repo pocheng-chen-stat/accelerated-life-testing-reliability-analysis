@@ -461,6 +461,153 @@ def plot_07_stress_life_quantiles(
     _savefig(output_path, fig)
 
 
+
+def plot_12_stress_life_quantile_comparison(
+    df: pd.DataFrame,
+    included_summary: dict,
+    excluded_summary: dict,
+    output_path: str | Path,
+    *,
+    prediction_voltage: float = 50.0,
+) -> None:
+    """
+    Compare stress-life quantile curves from models fitted with and without
+    the 361.4 kV/mm stress group.
+
+    Each model uses one color for all three quantiles. The 10%, 50%, and 90%
+    labels are written directly on the corresponding curves so the legend only
+    needs to distinguish the two model fits.
+    """
+    included_color = "#D97706"  # orange: model including 361.4 kV/mm
+    excluded_color = "#1F4E79"  # blue: model excluding 361.4 kV/mm
+
+    fig, ax = plt.subplots(figsize=(10.2, 6.8))
+
+    high_stress = np.isclose(df["voltage_kv_mm"].to_numpy(dtype=float), 361.4)
+    regular = ~high_stress
+
+    # Common observations are kept neutral. The 361.4 kV/mm observations are
+    # highlighted with the same color as the model that includes them.
+    ax.scatter(
+        np.log(df.loc[regular, "voltage_kv_mm"].to_numpy(dtype=float)),
+        np.log(df.loc[regular, "failure_time"].to_numpy(dtype=float)),
+        facecolors="none",
+        edgecolors="black",
+        s=25,
+        linewidths=0.8,
+        zorder=3,
+        label="Observed data",
+    )
+    ax.scatter(
+        np.log(df.loc[high_stress, "voltage_kv_mm"].to_numpy(dtype=float)),
+        np.log(df.loc[high_stress, "failure_time"].to_numpy(dtype=float)),
+        facecolors="none",
+        edgecolors=included_color,
+        s=30,
+        linewidths=1.1,
+        zorder=4,
+        label="361.4 kV/mm observations",
+    )
+
+    x_grid = np.linspace(np.log(40), np.log(370), 500)
+    quantiles = [0.9, 0.5, 0.1]
+
+    def draw_model(
+        summary: dict,
+        *,
+        color: str,
+        legend_label: str,
+        label_voltage: float,
+    ) -> None:
+        beta0 = float(summary["beta0"])
+        beta1 = float(summary["beta1"])
+        sigma = float(summary["sigma"])
+
+        for index, probability in enumerate(quantiles):
+            y_grid = beta0 + beta1 * x_grid + stats.norm.ppf(probability) * sigma
+            ax.plot(
+                x_grid,
+                y_grid,
+                color=color,
+                linewidth=1.55,
+                label=legend_label if index == 0 else None,
+                zorder=2,
+            )
+
+            x_text = np.log(label_voltage)
+            y_text = (
+                beta0
+                + beta1 * x_text
+                + stats.norm.ppf(probability) * sigma
+            )
+            ax.text(
+                x_text,
+                y_text,
+                f"{int(probability * 100)}%",
+                color=color,
+                fontsize=9,
+                fontweight="bold",
+                ha="left",
+                va="center",
+                bbox={
+                    "facecolor": "white",
+                    "edgecolor": "none",
+                    "alpha": 0.78,
+                    "pad": 0.35,
+                },
+                zorder=5,
+            )
+
+    # Put the labels at different x positions to keep the two model families
+    # visually separate while preserving the actual fitted curves.
+    draw_model(
+        included_summary,
+        color=included_color,
+        legend_label="Including 361.4 kV/mm",
+        label_voltage=315.0,
+    )
+    draw_model(
+        excluded_summary,
+        color=excluded_color,
+        legend_label="Excluding 361.4 kV/mm",
+        label_voltage=235.0,
+    )
+
+    ax.set_xlim(np.log(40), np.log(370))
+    ax.set_ylim(np.log(0.09), np.log(1e7))
+    bottom_ticks = [prediction_voltage, 100.3, 122.4, 157.1, 219.0, 361.4]
+    _set_four_sided_log_axes(
+        ax,
+        bottom_values=bottom_ticks,
+        left_values=[0.1, 1, 5, 30, 100, 500, 3000, 20000, 1e5, 1e6, 1e7],
+        top_values=[4.0, 4.5, 5.0, 5.5, 6.0],
+        right_values=[0, 5, 10, 15],
+        bottom_label="kV/mm",
+        left_label="time",
+        top_label="log kV/mm",
+        right_label="log time",
+    )
+
+    # Reorder the legend so the two fitted models appear first.
+    handles, labels = ax.get_legend_handles_labels()
+    preferred = [
+        "Including 361.4 kV/mm",
+        "Excluding 361.4 kV/mm",
+        "Observed data",
+        "361.4 kV/mm observations",
+    ]
+    lookup = dict(zip(labels, handles))
+    ax.legend(
+        [lookup[label] for label in preferred if label in lookup],
+        [label for label in preferred if label in lookup],
+        loc="upper right",
+        frameon=True,
+        fancybox=False,
+        edgecolor="black",
+        fontsize=8,
+    )
+    _savefig(output_path, fig, dpi=200)
+
 def inverse_power_residuals(
     df: pd.DataFrame,
     inverse_summary: dict,
