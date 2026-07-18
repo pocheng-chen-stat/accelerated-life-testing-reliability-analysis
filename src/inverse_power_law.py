@@ -7,32 +7,25 @@ from src.utils import normal_ci, sigma_bias_correction
 
 def _legacy_r_covariance(voltage: np.ndarray, y: np.ndarray, beta0: float, beta1: float, sigma: float) -> np.ndarray:
     """
-    Covariance matrix based on the observed information used by the original
-    R project, corrected to match the fitted predictor x = log(voltage).
+    Reproduce the covariance-matrix calculation used in the original R project.
 
-    The earlier implementation accidentally used raw voltage in two information
-    matrix terms for beta1.  Because the model is
-    log(T) = beta0 + beta1 * log(V) + error, those terms must use log(V).
-    A standard regression-based covariance estimate is also available through
-    `_standard_covariance`.
+    The original report/script used this matrix when drawing confidence bands for
+    the 50 kV/mm extrapolated probability plot. We keep it here for faithful
+    reproduction of the original figures. A more standard covariance estimate is
+    also available through `_standard_covariance`.
     """
     n = len(y)
-    # The fitted regression uses x = log(voltage), so every derivative with
-    # respect to beta1 must also use log(voltage).  The previous implementation
-    # mixed the raw voltage into the beta1-beta1 and beta1-sigma information
-    # terms, which severely understated Var(beta1).
-    x = np.log(voltage)
-    residual = y - beta0 - beta1 * x
+    residual = y - beta0 - beta1 * np.log(voltage)
 
     values = [
         n / sigma**2,
-        np.sum(x) / sigma**2,
+        np.sum(np.log(voltage)) / sigma**2,
         2 * np.sum(residual) / sigma**3,
-        np.sum(x) / sigma**2,
-        np.sum(x**2) / sigma**2,
-        2 * np.sum(residual * x) / sigma**3,
+        np.sum(np.log(voltage)) / sigma**2,
+        np.sum(np.log(voltage)**2) / sigma**2,
+        2 * np.sum(residual * np.log(voltage)) / sigma**3,
         2 * np.sum(residual) / sigma**3,
-        2 * np.sum(residual * x) / sigma**3,
+        2 * np.sum(residual * np.log(voltage)) / sigma**3,
         2 * n / sigma**2,
     ]
 
@@ -66,7 +59,7 @@ def fit_inverse_power_law(
     df: pd.DataFrame,
     *,
     label: str = "Inverse power law",
-    covariance_method: str = "legacy_r",
+    covariance_method: str = "standard",
 ) -> tuple[pd.DataFrame, dict]:
     """
     Fit inverse power law model by MLE.
@@ -157,6 +150,51 @@ def predict_lifetime_quantile(summary: dict, voltage_kv_mm: float, probability: 
     sigma = summary["sigma"]
     mu = beta0 + beta1 * np.log(voltage_kv_mm)
     return float(np.exp(mu + stats.norm.ppf(probability) * sigma))
+
+
+def failure_probability_confidence_interval(
+    summary: dict,
+    voltage_kv_mm: float,
+    time: float,
+    confidence: float = 0.95,
+) -> tuple[float, float]:
+    """Pointwise logit-scale confidence interval for F(time | voltage)."""
+    band = failure_probability_confidence_band(
+        summary,
+        voltage_kv_mm,
+        np.asarray([time], dtype=float),
+        confidence=confidence,
+    )
+    return float(band.loc[0, "lower_95"]), float(band.loc[0, "upper_95"])
+
+
+def lifetime_quantile_confidence_interval(
+    summary: dict,
+    voltage_kv_mm: float,
+    probability: float,
+    confidence: float = 0.95,
+) -> tuple[float, float]:
+    """Delta-method CI for t_p, formed on log-time scale and exponentiated."""
+    if not 0 < probability < 1:
+        raise ValueError("probability must be strictly between 0 and 1.")
+
+    beta0 = float(summary["beta0"])
+    beta1 = float(summary["beta1"])
+    sigma = float(summary["sigma"])
+    covariance = np.asarray(summary["covariance"], dtype=float)
+
+    log_v = float(np.log(voltage_kv_mm))
+    z_p = float(stats.norm.ppf(probability))
+    log_quantile = beta0 + beta1 * log_v + sigma * z_p
+
+    gradient = np.array([1.0, log_v, z_p], dtype=float)
+    variance = float(gradient @ covariance @ gradient)
+    standard_error = float(np.sqrt(max(variance, 0.0)))
+    z = float(stats.norm.ppf((1 + confidence) / 2))
+
+    lower_log = log_quantile - z * standard_error
+    upper_log = log_quantile + z * standard_error
+    return float(np.exp(lower_log)), float(np.exp(upper_log))
 
 
 def failure_probability_confidence_band(

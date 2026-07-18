@@ -8,6 +8,8 @@ from src.inverse_power_law import (
     fit_inverse_power_law,
     predict_failure_probability,
     predict_lifetime_quantile,
+    failure_probability_confidence_interval,
+    lifetime_quantile_confidence_interval,
 )
 from src.model_selection import calculate_aic, likelihood_ratio_test
 from src.r_style_visualizations import (
@@ -31,14 +33,33 @@ FIGURES_DIR = REPORTS_DIR / "figures"
 
 
 def _prediction_table(summary: dict, *, label: str) -> pd.DataFrame:
+    f_hat = predict_failure_probability(summary, voltage_kv_mm=50, time=10000)
+    f_lower, f_upper = failure_probability_confidence_interval(
+        summary, voltage_kv_mm=50, time=10000
+    )
+    b10 = predict_lifetime_quantile(summary, voltage_kv_mm=50, probability=0.1)
+    b10_lower, b10_upper = lifetime_quantile_confidence_interval(
+        summary, voltage_kv_mm=50, probability=0.1
+    )
+    b50 = predict_lifetime_quantile(summary, voltage_kv_mm=50, probability=0.5)
+    b50_lower, b50_upper = lifetime_quantile_confidence_interval(
+        summary, voltage_kv_mm=50, probability=0.5
+    )
+
     return pd.DataFrame(
         [
             {
                 "case": label,
                 "voltage_kv_mm": 50,
-                "F_10000": predict_failure_probability(summary, voltage_kv_mm=50, time=10000),
-                "t_0.1": predict_lifetime_quantile(summary, voltage_kv_mm=50, probability=0.1),
-                "t_0.5": predict_lifetime_quantile(summary, voltage_kv_mm=50, probability=0.5),
+                "F_10000": f_hat,
+                "F_10000_lower_95": f_lower,
+                "F_10000_upper_95": f_upper,
+                "t_0.1": b10,
+                "t_0.1_lower_95": b10_lower,
+                "t_0.1_upper_95": b10_upper,
+                "t_0.5": b50,
+                "t_0.5_lower_95": b50_lower,
+                "t_0.5_upper_95": b50_upper,
             }
         ]
     )
@@ -54,12 +75,12 @@ def main() -> None:
     separate_params, separate_summary = fit_lognormal_separate_sigma(df)
     equal_params, equal_summary = fit_lognormal_equal_sigma(df)
 
-    # Inverse power law using all stress levels. Use legacy_r covariance so the
-    # confidence-band figures match the original R script.
+    # Inverse power law using all stress levels. Use the covariance matrix for
+    # the actual predictor log(V), matching the fitted model specification.
     inverse_params, inverse_summary = fit_inverse_power_law(
         df,
         label="Inverse power law",
-        covariance_method="legacy_r",
+        covariance_method="standard",
     )
 
     # Refit after excluding 361.4 kV/mm, matching the later part of the report.
@@ -67,7 +88,7 @@ def main() -> None:
     inverse_params_without_361, inverse_summary_without_361 = fit_inverse_power_law(
         df_without_361,
         label="Inverse power law excluding 361.4 kV/mm",
-        covariance_method="legacy_r",
+        covariance_method="standard",
     )
 
     # Model-selection table.
