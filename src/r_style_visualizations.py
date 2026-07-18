@@ -18,7 +18,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
 
-from src.inverse_power_law import failure_probability_confidence_band, predict_failure_probability
+from src.inverse_power_law import (
+    failure_probability_confidence_band,
+    predict_failure_probability,
+)
 
 
 R_COLORS = {
@@ -362,10 +365,28 @@ def plot_06_probability_plot_inverse_power_with_50kv_ci(
         label=f"{prediction_voltage:g} kV / mm",
     )
 
-    time_grid = np.arange(time_grid_start, time_grid_end + 10, 10, dtype=float)
+    # Use a geometric grid because the x-axis is log(time).  A fixed increment
+    # in raw time produces visibly sparse points in the lower-time region and
+    # unnecessarily dense points in the upper-time region.
+    time_grid = np.geomspace(time_grid_start, time_grid_end, 3000, dtype=float)
     band = failure_probability_confidence_band(inverse_summary, prediction_voltage, time_grid)
-    ax.scatter(np.log(band["time"]), band["lower_95_quantile"], color="black", s=1, alpha=0.6)
-    ax.scatter(np.log(band["time"]), band["upper_95_quantile"], color="black", s=1, alpha=0.6)
+
+    # Continuous lines communicate a confidence band more clearly than a cloud
+    # of tiny points and remain smooth across the full probability scale.
+    ax.plot(
+        np.log(band["time"]),
+        band["lower_95_quantile"],
+        color="black",
+        linewidth=1.25,
+        alpha=0.9,
+    )
+    ax.plot(
+        np.log(band["time"]),
+        band["upper_95_quantile"],
+        color="black",
+        linewidth=1.25,
+        alpha=0.9,
+    )
 
     f_marker = predict_failure_probability(inverse_summary, prediction_voltage, marker_time)
     q_marker = stats.norm.ppf(f_marker)
